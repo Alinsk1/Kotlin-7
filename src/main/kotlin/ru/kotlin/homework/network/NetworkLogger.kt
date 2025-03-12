@@ -30,6 +30,10 @@ class ErrorLogger<E : Throwable> {
             println("Error at $date: ${error.message}")
         }
     }
+
+    fun dump(): List<Pair<LocalDateTime, E>> {
+        return errors
+    }
 }
 
 fun processThrowables(logger: ErrorLogger<Throwable>) {
@@ -42,7 +46,7 @@ fun processThrowables(logger: ErrorLogger<Throwable>) {
     logger.dumpLog()
 }
 
-fun processApiErrors(apiExceptionLogger: ErrorLogger<ApiException>) {
+fun processApiErrors(apiExceptionLogger: ErrorLogger<in ApiException>) {
     apiExceptionLogger.log(Success("Success"))
     Thread.sleep(100)
     apiExceptionLogger.log(Success(Circle))
@@ -52,6 +56,7 @@ fun processApiErrors(apiExceptionLogger: ErrorLogger<ApiException>) {
     apiExceptionLogger.dumpLog()
 }
 
+
 fun main() {
     val logger = ErrorLogger<Throwable>()
 
@@ -60,5 +65,11 @@ fun main() {
 
     println("Processing Api:")
     processApiErrors(logger)
+
+    val errorList = logger.dump()
+    println("List of errors:")
+    errorList.forEach { (date, error) ->
+        println("Error at $date: ${error.message}")
+    }
 }
 
